@@ -1,0 +1,460 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "VPC: public and private subnets in two availability zones, a cloudonaut.io template",
+	"Metadata": {
+		"AWS::CloudFormation::Interface": {
+			"ParameterGroups": [
+				{
+					"Label": {
+						"default": "VPC Parameters"
+					},
+					"Parameters": [
+						"ClassB"
+					]
+				}
+			]
+		}
+	},
+	"Parameters": {
+		"ClassB": {
+			"Description": "Class B of VPC (10.XXX.0.0/16)",
+			"Type": "Number",
+			"Default": 0,
+			"ConstraintDescription": "Must be in the range [0-255]",
+			"MinValue": 0,
+			"MaxValue": 255
+		}
+	},
+	"Resources": {
+		"VPC": {
+			"Type": "AWS::EC2::VPC",
+			"Properties": {
+				"CidrBlock": null,
+				"EnableDnsSupport": true,
+				"EnableDnsHostnames": true,
+				"InstanceTenancy": "default",
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": null
+					}
+				]
+			}
+		},
+		"InternetGateway": {
+			"Type": "AWS::EC2::InternetGateway",
+			"Properties": {
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": null
+					}
+				]
+			}
+		},
+		"VPCGatewayAttachment": {
+			"Type": "AWS::EC2::VPCGatewayAttachment",
+			"Properties": {
+				"VpcId": null,
+				"InternetGatewayId": null
+			}
+		},
+		"SubnetAPublic": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": null,
+				"CidrBlock": null,
+				"MapPublicIpOnLaunch": true,
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "A public"
+					},
+					{
+						"Key": "Reach",
+						"Value": "public"
+					}
+				]
+			}
+		},
+		"SubnetAPrivate": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": null,
+				"CidrBlock": null,
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "A private"
+					},
+					{
+						"Key": "Reach",
+						"Value": "private"
+					}
+				]
+			}
+		},
+		"SubnetBPublic": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": null,
+				"CidrBlock": null,
+				"MapPublicIpOnLaunch": true,
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "B public"
+					},
+					{
+						"Key": "Reach",
+						"Value": "public"
+					}
+				]
+			}
+		},
+		"SubnetBPrivate": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": null,
+				"CidrBlock": null,
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "B private"
+					},
+					{
+						"Key": "Reach",
+						"Value": "private"
+					}
+				]
+			}
+		},
+		"RouteTablePublic": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "A Public"
+					}
+				]
+			}
+		},
+		"RouteTablePrivate": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "A Private"
+					}
+				]
+			}
+		},
+		"RouteTableBPublic": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "B Public"
+					}
+				]
+			}
+		},
+		"RouteTableBPrivate": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "B Private"
+					}
+				]
+			}
+		},
+		"RouteTableAssociationAPublic": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"RouteTableId": null
+			}
+		},
+		"RouteTableAssociationAPrivate": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"RouteTableId": null
+			}
+		},
+		"RouteTableAssociationBPublic": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"RouteTableId": null
+			}
+		},
+		"RouteTableAssociationBPrivate": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"RouteTableId": null
+			}
+		},
+		"RouteTablePublicInternetRoute": {
+			"Type": "AWS::EC2::Route",
+			"DependsOn": "VPCGatewayAttachment",
+			"Properties": {
+				"RouteTableId": null,
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": null
+			}
+		},
+		"RouteTablePublicBInternetRoute": {
+			"Type": "AWS::EC2::Route",
+			"DependsOn": "VPCGatewayAttachment",
+			"Properties": {
+				"RouteTableId": null,
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": null
+			}
+		},
+		"NetworkAclPublic": {
+			"Type": "AWS::EC2::NetworkAcl",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Public"
+					}
+				]
+			}
+		},
+		"NetworkAclPrivate": {
+			"Type": "AWS::EC2::NetworkAcl",
+			"Properties": {
+				"VpcId": null,
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Private"
+					}
+				]
+			}
+		},
+		"SubnetNetworkAclAssociationAPublic": {
+			"Type": "AWS::EC2::SubnetNetworkAclAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"NetworkAclId": null
+			}
+		},
+		"SubnetNetworkAclAssociationAPrivate": {
+			"Type": "AWS::EC2::SubnetNetworkAclAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"NetworkAclId": null
+			}
+		},
+		"SubnetNetworkAclAssociationBPublic": {
+			"Type": "AWS::EC2::SubnetNetworkAclAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"NetworkAclId": null
+			}
+		},
+		"SubnetNetworkAclAssociationBPrivate": {
+			"Type": "AWS::EC2::SubnetNetworkAclAssociation",
+			"Properties": {
+				"SubnetId": null,
+				"NetworkAclId": null
+			}
+		},
+		"NetworkAclEntryInPublicAllowAll": {
+			"Type": "AWS::EC2::NetworkAclEntry",
+			"Properties": {
+				"NetworkAclId": null,
+				"RuleNumber": 99,
+				"Protocol": -1,
+				"RuleAction": "allow",
+				"Egress": false,
+				"CidrBlock": "0.0.0.0/0"
+			}
+		},
+		"NetworkAclEntryOutPublicAllowAll": {
+			"Type": "AWS::EC2::NetworkAclEntry",
+			"Properties": {
+				"NetworkAclId": null,
+				"RuleNumber": 99,
+				"Protocol": -1,
+				"RuleAction": "allow",
+				"Egress": true,
+				"CidrBlock": "0.0.0.0/0"
+			}
+		},
+		"NetworkAclEntryInPrivateAllowVPC": {
+			"Type": "AWS::EC2::NetworkAclEntry",
+			"Properties": {
+				"NetworkAclId": null,
+				"RuleNumber": 99,
+				"Protocol": -1,
+				"RuleAction": "allow",
+				"Egress": false,
+				"CidrBlock": "0.0.0.0/0"
+			}
+		},
+		"NetworkAclEntryOutPrivateAllowVPC": {
+			"Type": "AWS::EC2::NetworkAclEntry",
+			"Properties": {
+				"NetworkAclId": null,
+				"RuleNumber": 99,
+				"Protocol": -1,
+				"RuleAction": "allow",
+				"Egress": true,
+				"CidrBlock": "0.0.0.0/0"
+			}
+		}
+	},
+	"Outputs": {
+		"TemplateID": {
+			"Description": "cloudonaut.io template id.",
+			"Value": "vpc/vpc-2azs"
+		},
+		"TemplateVersion": {
+			"Description": "cloudonaut.io template version.",
+			"Value": "9.4.0"
+		},
+		"StackName": {
+			"Description": "Stack name.",
+			"Value": null
+		},
+		"AZs": {
+			"Description": "AZs",
+			"Value": 2,
+			"Export": {
+				"Name": null
+			}
+		},
+		"AZA": {
+			"Description": "AZ of A",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"AZB": {
+			"Description": "AZ of B",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"CidrBlock": {
+			"Description": "The set of IP addresses for the VPC.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"VPC": {
+			"Description": "VPC.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetsPublic": {
+			"Description": "Subnets public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetsPrivate": {
+			"Description": "Subnets private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTablesPrivate": {
+			"Description": "Route tables private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTablesPublic": {
+			"Description": "Route tables public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetAPublic": {
+			"Description": "Subnet A public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTableAPublic": {
+			"Description": "Route table A public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetAPrivate": {
+			"Description": "Subnet A private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTableAPrivate": {
+			"Description": "Route table A private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetBPublic": {
+			"Description": "Subnet B public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTableBPublic": {
+			"Description": "Route table B public.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"SubnetBPrivate": {
+			"Description": "Subnet B private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		},
+		"RouteTableBPrivate": {
+			"Description": "Route table B private.",
+			"Value": null,
+			"Export": {
+				"Name": null
+			}
+		}
+	}
+}
